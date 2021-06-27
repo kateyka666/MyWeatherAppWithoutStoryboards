@@ -8,12 +8,14 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
     private var temperatureLabel: UILabel!
     private var cityLabel: UILabel!
     private var weatherDescriptionLabel: UILabel!
     
     private var weatherIconImage: UIImageView!
+    
+    private var activityView = UIActivityIndicatorView(style: .large)
     
     private var citSearchBar = UISearchController(searchResultsController: nil)
     
@@ -27,7 +29,6 @@ class ViewController: UIViewController {
         firstFetch()
         
     }
-
     
     private func configurateSearchController() {
         citSearchBar.searchResultsUpdater = self
@@ -37,8 +38,13 @@ class ViewController: UIViewController {
         
         navigationItem.searchController = citSearchBar
     }
+    
     private func createViewLabelsAndImage(){
         view.backgroundColor = UIColor(named: "ColorForWeatherController")
+        
+        activityView.center = CGPoint(x: view.frame.midX, y: 220)
+        activityView.startAnimating()
+        activityView.color = .cyan
         
         temperatureLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 240, height: 75))
         temperatureLabel.center = CGPoint(x: view.frame.midX, y: view.frame.minY + 170)
@@ -56,50 +62,52 @@ class ViewController: UIViewController {
         weatherDescriptionLabel.textAlignment = .right
         weatherDescriptionLabel.numberOfLines = 0
         weatherDescriptionLabel.font = UIFont(name: "Kohinoor Gujarati Regular", size: 25)
-       
+        
         weatherIconImage = UIImageView(frame: CGRect(x: 0, y: 0, width: 130, height: 130))
         weatherIconImage.center = CGPoint(x: view.frame.midX , y: weatherDescriptionLabel.frame.minY + 140)
-      
+        
         self.view.addSubview(temperatureLabel)
         self.view.addSubview(cityLabel)
         self.view.addSubview(weatherDescriptionLabel)
         self.view.addSubview(weatherIconImage)
-        
+        self.view.addSubview(activityView)
         
     }
     
     private func firstFetch() {
         //        ставим [unowned  self] для того чтобы избежать цикла сильных ссылок, а также развернуть опцинальный вьюконтроллер(типо форсеанврап)
-                weather.fetchRequestWeather(for: "Moscow")
-                {[unowned  self] completionHandler in
-                    self.updateUI(completionHandler: completionHandler)
-               }
+        weather.fetchRequestWeather(for: "Moscow")
+        {[unowned  self] completionHandler in
+            self.updateUI(completionHandler: completionHandler)
+        }
     }
     
     private func updateUI(completionHandler: City){
-//        обновляем ui в главном потоке приложения
+        //        обновляем ui в главном потоке приложения
         DispatchQueue.main.async {
             self.temperatureLabel.text = completionHandler.temperatureString
             self.cityLabel.text = completionHandler.cityName
             self.weatherDescriptionLabel.text = completionHandler.weatherDescription
-       self.weatherIconImage.image = UIImage(named: completionHandler.icon)
+            self.weatherIconImage.image = UIImage(named: completionHandler.icon)
+            self.activityView.stopAnimating()
         }
     }
-
-
+    
+    
 }
 
 extension ViewController : UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         if searchController.searchBar.text != "" {
             guard let text = searchController.searchBar.text else {return}
-//            проверяем, если текст содержит пробел, то разделяем на два масива и потом соединяем в один без пробела
+            //            проверяем, если текст содержит пробел, то разделяем на два масива и потом соединяем в один без пробела
             let textWithoutSeparators = text.split(separator: " ").joined(separator: "%20").lowercased()
+            activityView.startAnimating()
             weather.fetchRequestWeather(for: textWithoutSeparators)
             {[weak self] completionHandler in
                 guard let self = self else {return}
                 self.updateUI(completionHandler: completionHandler)
-           }
+            }
         }
     }
     
