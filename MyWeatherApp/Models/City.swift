@@ -8,6 +8,7 @@
 import Foundation
 
 struct City {
+    
     let cityName: String
     let weatherDescription: String
     let temperature: Double
@@ -22,4 +23,5 @@ struct City {
         temperature = weather.main.temp
         icon = weather.weather[0].icon
     }
+    
 }
