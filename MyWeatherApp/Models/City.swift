@@ -23,5 +23,4 @@ struct City {
         temperature = weather.main.temp
         icon = weather.weather[0].icon
     }
-    
 }

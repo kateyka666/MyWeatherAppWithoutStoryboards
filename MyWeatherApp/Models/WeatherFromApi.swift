@@ -12,6 +12,8 @@ struct WeatherFromAPI: Codable {
     let weather: [WeatherElement]
     let main: Main
     let name: String
+    
+    
 }
 
 // MARK: - Main

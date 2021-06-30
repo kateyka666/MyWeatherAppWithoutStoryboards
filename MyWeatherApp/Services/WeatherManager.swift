@@ -6,14 +6,15 @@
 //
 import Foundation
 import UIKit
-
+import Alamofire
 
 class WeatherManager {
     
+    static let shared = WeatherManager()
     //делаем комлишенхендлер(сбегающее замыкание, чтобы передать экземпляр класса сити во вью контроллер+ обновляем интерфейс вью контроллер)
     func fetchRequestWeather(for city : String, completionHandler: @escaping (City) -> Void) {
-        let apiString = "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(apiKey)&units=metric&lang=ru"
-        guard let url = URL(string: apiString) else {return}
+        let urlRawValue = WeatherURL.apiString.rawValue.replacingOccurrences(of: "*", with: city)
+        guard let url = URL(string: urlRawValue) else {return}
         //        создаем сетевую сессию
         let session = URLSession(configuration: .default)
         //        создаем запрос данных через сессию
@@ -44,5 +45,6 @@ class WeatherManager {
         }
         return nil
     }
+    private init? (){}
     
 }

@@ -6,20 +6,22 @@
 //
 
 import UIKit
+import Alamofire
+
 
 class ViewController: UIViewController {
     
-    private var temperatureLabel: UILabel!
-    private var cityLabel: UILabel!
-    private var weatherDescriptionLabel: UILabel!
+    static var temperatureLabel: UILabel!
+    static var cityLabel: UILabel!
+    static var weatherDescriptionLabel: UILabel!
     
-    private var weatherIconImage: UIImageView!
+    static var weatherIconImage: UIImageView!
     
-    private var activityView = UIActivityIndicatorView(style: .large)
+    static var activityView = UIActivityIndicatorView(style: .large)
     
-    private var citSearchBar = UISearchController(searchResultsController: nil)
+    static var citSearchBar = UISearchController(searchResultsController: nil)
     
-    private var weather = WeatherManager()
+//    private var weather = WeatherManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,52 +33,52 @@ class ViewController: UIViewController {
     }
     
     private func configurateSearchController() {
-        citSearchBar.searchResultsUpdater = self
+        ViewController.citSearchBar.searchResultsUpdater = self
         
-        citSearchBar.searchBar.placeholder = "Kazan, Samara, Sochi..."
-        citSearchBar.searchBar.backgroundColor = UIColor(named: "ColorForWeatherController")
+        ViewController.citSearchBar.searchBar.placeholder = "Kazan, Samara, Sochi..."
+        ViewController.citSearchBar.searchBar.backgroundColor = UIColor(named: "ColorForWeatherController")
         
-        navigationItem.searchController = citSearchBar
+        navigationItem.searchController = ViewController.citSearchBar
     }
     
     private func createViewLabelsAndImage(){
         view.backgroundColor = UIColor(named: "ColorForWeatherController")
         
-        activityView.center = CGPoint(x: view.frame.midX, y: 220)
-        activityView.startAnimating()
-        activityView.color = .cyan
+        ViewController.activityView.center = CGPoint(x: view.frame.midX, y: 220)
+        ViewController.activityView.startAnimating()
+        ViewController.activityView.color = .cyan
         
-        temperatureLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 240, height: 75))
-        temperatureLabel.center = CGPoint(x: view.frame.midX, y: view.frame.minY + 170)
-        temperatureLabel.textAlignment = .center
-        temperatureLabel.font = UIFont(name: "Kohinoor Gujarati Regular", size: 50)
+        ViewController.temperatureLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 240, height: 75))
+        ViewController.temperatureLabel.center = CGPoint(x: view.frame.midX, y: view.frame.minY + 170)
+        ViewController.temperatureLabel.textAlignment = .center
+        ViewController.temperatureLabel.font = UIFont(name: "Kohinoor Gujarati Regular", size: 50)
         
-        cityLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 400, height: 75))
-        cityLabel.center = CGPoint(x: view.frame.midX,y:temperatureLabel.frame.minY + 100 )
-        cityLabel.textAlignment = .center
-        cityLabel.numberOfLines = 0
-        cityLabel.font = UIFont(name: "Kohinoor Gujarati Bold", size: 30)
+        ViewController.cityLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 400, height: 75))
+        ViewController.cityLabel.center = CGPoint(x: view.frame.midX,y:ViewController.temperatureLabel.frame.minY + 100 )
+        ViewController.cityLabel.textAlignment = .center
+        ViewController.cityLabel.numberOfLines = 0
+        ViewController.cityLabel.font = UIFont(name: "Kohinoor Gujarati Bold", size: 30)
         
-        weatherDescriptionLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 360, height: 40))
-        weatherDescriptionLabel.center = CGPoint(x: view.frame.midX , y:cityLabel.frame.minY + 80)
-        weatherDescriptionLabel.textAlignment = .right
-        weatherDescriptionLabel.numberOfLines = 0
-        weatherDescriptionLabel.font = UIFont(name: "Kohinoor Gujarati Regular", size: 25)
+        ViewController.weatherDescriptionLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 360, height: 40))
+        ViewController.weatherDescriptionLabel.center = CGPoint(x: view.frame.midX , y:ViewController.cityLabel.frame.minY + 80)
+        ViewController.weatherDescriptionLabel.textAlignment = .right
+        ViewController.weatherDescriptionLabel.numberOfLines = 0
+        ViewController.weatherDescriptionLabel.font = UIFont(name: "Kohinoor Gujarati Regular", size: 25)
         
-        weatherIconImage = UIImageView(frame: CGRect(x: 0, y: 0, width: 130, height: 130))
-        weatherIconImage.center = CGPoint(x: view.frame.midX , y: weatherDescriptionLabel.frame.minY + 140)
+        ViewController.weatherIconImage = UIImageView(frame: CGRect(x: 0, y: 0, width: 130, height: 130))
+        ViewController.weatherIconImage.center = CGPoint(x: view.frame.midX , y: ViewController.weatherDescriptionLabel.frame.minY + 140)
         
-        self.view.addSubview(temperatureLabel)
-        self.view.addSubview(cityLabel)
-        self.view.addSubview(weatherDescriptionLabel)
-        self.view.addSubview(weatherIconImage)
-        self.view.addSubview(activityView)
+        self.view.addSubview(ViewController.temperatureLabel)
+        self.view.addSubview(ViewController.cityLabel)
+        self.view.addSubview(ViewController.weatherDescriptionLabel)
+        self.view.addSubview(ViewController.weatherIconImage)
+        self.view.addSubview(ViewController.activityView)
         
     }
     
     private func firstFetch() {
         //        ставим [unowned  self] для того чтобы избежать цикла сильных ссылок, а также развернуть опцинальный вьюконтроллер(типо форсеанврап)
-        weather.fetchRequestWeather(for: "Moscow")
+        WeatherManager.shared?.fetchRequestWeather(for: "Moscow")
         {[unowned  self] completionHandler in
             self.updateUI(completionHandler: completionHandler)
         }
@@ -85,15 +87,13 @@ class ViewController: UIViewController {
     private func updateUI(completionHandler: City){
         //        обновляем ui в главном потоке приложения
         DispatchQueue.main.async {
-            self.temperatureLabel.text = completionHandler.temperatureString
-            self.cityLabel.text = completionHandler.cityName
-            self.weatherDescriptionLabel.text = completionHandler.weatherDescription
-            self.weatherIconImage.image = UIImage(named: completionHandler.icon)
-            self.activityView.stopAnimating()
+            ViewController.temperatureLabel.text = completionHandler.temperatureString
+            ViewController.cityLabel.text = completionHandler.cityName
+            ViewController.weatherDescriptionLabel.text = completionHandler.weatherDescription
+            ViewController.weatherIconImage.image = UIImage(named: completionHandler.icon)
+            ViewController.activityView.stopAnimating()
         }
     }
-    
-    
 }
 
 extension ViewController : UISearchResultsUpdating {
@@ -102,12 +102,14 @@ extension ViewController : UISearchResultsUpdating {
             guard let text = searchController.searchBar.text else {return}
             //            проверяем, если текст содержит пробел, то разделяем на два масива и потом соединяем в один без пробела
             let textWithoutSeparators = text.split(separator: " ").joined(separator: "%20").lowercased()
-            activityView.startAnimating()
-            weather.fetchRequestWeather(for: textWithoutSeparators)
-            {[weak self] completionHandler in
-                guard let self = self else {return}
+            ViewController.activityView.startAnimating()
+            
+            AlamofireWeatherManager.shared?.alamofireFetch(for: textWithoutSeparators)
+            {[weak  self] completionHandler in
+                guard let self = self else { return }
                 self.updateUI(completionHandler: completionHandler)
             }
+
         }
     }
     
